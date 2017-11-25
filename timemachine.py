@@ -1,23 +1,46 @@
 import argparse
 import datetime
 import os
+from shutil import copy2
 
-import rwio.reader
+from rwio.reader import Reader
 
 
 def print_last_mod_date(filename):
     timestamp = os.path.getmtime(filename)
-    print(timestamp)
-    print(datetime.datetime.fromtimestamp(timestamp))
+    print(filename, " ", timestamp)
+    print(filename, " ", datetime.datetime.fromtimestamp(timestamp))
 
-def get_last_modified_date(config):
-    # get list of contents
-    r1 = rwio.reader.Reader(config)
-    lines = r1.read()
-    print(lines)
+
+def get_timestamp_for_file(filename):
+    return os.path.getmtime(filename)
+
+
+def get_last_modified_date(args):
+    # get list of files to be watched
+    r1 = Reader(args.config)
+    file_paths = r1.read()
+
+    # determine if any of the watched files have changed
+    # first, get current timestamps
+    for filepath in file_paths:
+        filename = os.path.split(filepath)[1]
+        current_timestamp = get_timestamp_for_file(filepath.replace("\n", ""))
+        prev_timestamp = 1511639730.8462887
+
+        if current_timestamp > prev_timestamp:
+            destination = os.path.join(args.storePath, "backups")
+            print("Copying: " + filepath + " to " + destination)
+            copy2(filepath, destination)
+
+
+def copy_file(filename, destination):
+    copy2(filename, destination)
+
 
 def backup_files(args):
-    get_last_modified_date(args.config)
+    get_last_modified_date(args)
+
 
 def main(args=None):
     parser = argparse.ArgumentParser()
