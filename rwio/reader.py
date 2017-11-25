@@ -7,4 +7,11 @@ class Reader:
         self.f.close()
 
     def read(self):
-        return self.f.read()
+        return self.f.readlines()
+
+    def list_content(self):
+        lines = self.read()
+
+        for line in lines:
+            print(line, sep="\n", end="\n")
+        self.close()
