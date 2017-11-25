@@ -6,10 +6,9 @@ class Remover:
         r = open(self.filename, 'rt')
         lines = r.readlines()
         r.close()
-        print(lines)
 
         w = open(self.filename, 'wt')
-        # need to find out why os.linesep function was not working
+        # TODO need to find out why os.linesep function was not working
         for line in lines:
             if not line.endswith(item + "\n"):
                 w.write(line)
