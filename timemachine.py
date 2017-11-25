@@ -1,6 +1,7 @@
 import argparse
 import datetime
 import os
+import hashlib
 from shutil import copy2
 
 from rwio.logger import Logger
@@ -28,15 +29,23 @@ def get_last_modified_date(args):
     # determine if any of the watched files have changed
     for filepath in file_paths:
         # first, get current & previous timestamp
-        current_timestamp = get_timestamp_for_file(filepath.replace("\n", ""))
+        filepath = filepath.replace("\n", "")
+        current_timestamp = get_timestamp_for_file(filepath)
         prev_timestamp = get_previous_timestamp()
 
         # determine if backup is necessary
         if current_timestamp > prev_timestamp:
             # create destination path and backup file
-            destination = os.path.join(args.destinationPath, "backups")
-            log1.log("Copying: " + filepath.replace("\n", "") + " to " + destination)
+            hashed_folder = get_folder_name(filepath)
+            ##  TODO need to make sure that hashed folder exists before trying to copy files into it
+            destination = os.path.join(args.destinationPath, "backups", hashed_folder)
+            log1.log("Copying: " + filepath + " to " + destination)
             copy_file(filepath, destination)
+
+
+def get_folder_name(path):
+    hashed_folder = hashlib.md5(path.encode('UTF-8'))
+    return hashed_folder.hexdigest()
 
 
 def get_previous_timestamp():
