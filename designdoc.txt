@@ -1,7 +1,7 @@
 Joanna Wojcik, Student number: R00169918
 
 
-RUNNING THE SCRIPT
+TESTING THE SCRIPT
 -------------------------------------------------------------
 Assuming that python3 interpreter is avaiable and has been added to the path
 
@@ -74,7 +74,7 @@ Problem outline:
 Decision
 	Following advice given in lectures "Before you start any new task it's worth searching for a library to do the job, often it can get you 90% of the problem solved" - Python Basics (Lecture 4). Researched the mentioned argparse and discovered that it was infinitely easier than trying to work with *args (or even **kwargs) to allow optional arguments in the first place and then handle them in loops. Instead of a loop with many conditions checking if a given item matches one of supported arguments and if it has a value and if it does not then provide default. To many lines of code, prone to error and quite brittle to change in my opinion.
 
-ERROR HANDLING
+FAILURE MODES
 --------------------------------------------------------------
 Problem outine:
 	Script was required to handle errors
