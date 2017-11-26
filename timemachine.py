@@ -58,11 +58,11 @@ def main():
     default_config = 'config.dat'
     # define allowed arguments and initalize their default values, when applicable
     parser = argparse.ArgumentParser()
-    parser.add_argument("--config", default=default_config)
-    parser.add_argument("--destinationPath", default='.')
-    parser.add_argument("--list", action="store_true")
-    parser.add_argument("--remove")
-    parser.add_argument("--add")
+    parser.add_argument("--config", default=default_config, help="Defines path to config.dat file")
+    parser.add_argument("--destinationPath", default='.', help="Defines the backup path")
+    parser.add_argument("--list", action="store_true", help="Lists files that are currently watched and backed up")
+    parser.add_argument("--remove", help="Removes files from  backup list")
+    parser.add_argument("--add", help="Adds file to backup list")
 
     args = parser.parse_args()
     arg_utils = Argutils()

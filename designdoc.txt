@@ -1,6 +1,39 @@
+Joanna Wojcik, Student number: R00169918
+
+
+RUNNING THE SCRIPT
+-------------------------------------------------------------
+Assuming that python3 interpreter is avaiable and has been added to the path
+
+	DEFAULT
+	by default you can run the script with 
+		python3 ./timemachine.py
+	it will create a default config.dat if one doesn't already exist. File will be stored in the directory script was ran from. You can the add, remove and list files that will be backed up by the tool.
+
+	For any of the below commands the script assumes that you have provided a fully qualified path - more on the reasoning behind it in Backup Design section. 
+	
+	ADDING FILES TO WATCHLIST	
+		python3 ./timemachine.py --add "<fqn_path_to_file>"
+	
+	REMOVING WATCHED FILES
+		python3 ./timemachine.py --remove "<fqn_path_to_file>"
+	
+	LISTING WATCHED FILES
+		python3 ./timemachine.py --list "<fqn_path_to_file>"
+	
+	SPECIFYING NON-DEFAULT CONFIG FILE
+		python3 ./timemachine.py --destinationPath "<fqn_path_to_file>"
+	
+	SPECIFYING NON-DEFAULT BACKUP PATH
+		python3 ./timemachine.py --config "<fqn_path_to_file>"
+		
+	GETTING HELP
+		python3 ./timemachine.py --help
+		python3 ./timemachine.py -h
+
+
 SCRIPT RESILIENCE
 -------------------------------------------------------------
-
 Problem outline:
 	Script was required to be starting/stopping resiustant. This meant that any information needed to determine if any given  file needs to be backed up cannot be stored in memory but instead needs to be persisted to disk. However, didn't want to duplicate the whole directory structure as it can be very deep and on some operatin systems, e.g. Windows 7 your complete patth can only have 255 characters. Still, needed a way to cater for files with the same names but different directory paths. 
 
@@ -17,22 +50,44 @@ Problem outline:
 	Outline requires to store a copy of the file each time it's changed building up he history of changes over time. This means that each consecutive copy of a file to be backed up needed to either be labelled, possibly by adding suffix to filename, or stored in a folder separating it from previous copies. At the same time label or folder name needed to denote historicl order of the copies
 Decision 1:
 	Decided on not suffixing filenames with timestamp as this would modify file's "last time modified" metadata. Instead copies of file are kept in folders where folder name is the last modified timestamp of the backed up file in unix format. Perhaps not very human readable but very machine readable in case of needing to write a recovery script.
+Decision 2:
+	Decided it is safest to work with fully qualified paths as otherwise you could have 2 files with the same relative paths saving to the backup directory, since backup directory and script directory do not need to be the same.
+
+ADDING AND REMOVING ENTRIES FROM LIST OF WATCHED FILES
+--------------------------------------------------------------
+Problem outline:
+	Script nedded to be robust to allow for modification of files to be backed up. Users need to be able to add or remove files from config
+Decision 1:
+	Users are prevented from adding the same file, with the same directory structure, to the config. They are informed that such file is already being watched
+Decision 2:
+	Since script checks if file exists or not before trying to back it up users are allowed to manually modfy config.dat 
+Decision 3:
+	Only files that actually exist can be added to the config.dat through the tool - each time the user attempts to add a new file it's checked that it exists before it's added to cnfig.dat
+Decision 4:
+	Since config.dat can be manually edited before it's processed - it's cleaned up or any empty lines to reduce the number of times script needs to check if file exists before performing backup
+
 
 PARSING COMMANDLINE ARGUMENTS AND PROVIDING DEFAULTS
 --------------------------------------------------------------
 Problem outline:
 	There were a number of parameters that the script needed to support. On top of that they needed to have default values if they were omitted when script was ran or started.
-Decision 1:
-	Following advice given in lectures "Before you start any new task it's worth searching for a library to do the job, often it can get you 90% of the problem solved" - Python Basics (Lecture 4). Researched the mentioned argparse and discovered that it was infinitely easier than trying to work with *args (or even **kwargs) to allow optional arguments in the first place and then handle them in loops. Instead of a loop with many conditions checking if a given item matches one of supported arguments and if it has a value and if it does not then provide default. To many lines of code, prone to error and quite brittle to change in my opinion. 
+Decision
+	Following advice given in lectures "Before you start any new task it's worth searching for a library to do the job, often it can get you 90% of the problem solved" - Python Basics (Lecture 4). Researched the mentioned argparse and discovered that it was infinitely easier than trying to work with *args (or even **kwargs) to allow optional arguments in the first place and then handle them in loops. Instead of a loop with many conditions checking if a given item matches one of supported arguments and if it has a value and if it does not then provide default. To many lines of code, prone to error and quite brittle to change in my opinion.
+
+ERROR HANDLING
+--------------------------------------------------------------
+Problem outine:
+	Script was required to handle errors
+Decision:
+	In many cases instead of letting an error occur decided on error prevention. For example: if source file was missing then user would be informed before any error occurs, or if expected directory structure was not provided or if one of the required file, such as config.dat was missing they would be created. If an operation couldn't be completed user would be informed of the reason. 
+	In my opinion it does make for cleaner script running and requires less initial setup from the user.
 	
-
-
 MODULES IMPORTED
 --------------------------------------------------------------
 External:
-- os - needed for file operations, determining existance of files and folders, generating paths in OS-agnostic way
-- argparse - needed for easy working with command line arguments. Enabled easy parsing of arguments, providing default values if args are omitted. 
-- hashlib - needed to generate hashes of filepaths as outlined in Script Resilience section
+- os - needed for file operations, determining existence of files and folders, creating new folders and generating paths in OS-agnostic way. There really isn't any better alternative and it certainly less error prone that doing it manually - creating a complete folder structure could take many operations depending on level of nesting instead of using a single command. Likewise with path generation, if concatenating strings to generate a file path manually one would need to account for firrenece of separators between at least *nix, Window and MacOS operating systems
+- argparse - needed for easy working with command line arguments. Enabled easy parsing of arguments, providing default values if args are omitted. Explained above why this and not alternative route was taken
+- hashlib - needed to generate hashes of filepaths as outlined in Script Resilience section.
 - shutil.copy2 - needed for easy copying of files from one location to another. Decided on this as opposed to shutil.copyfile mainly because latter doesn't allow the destination to be a directory - the file contents are moved from a file to a file. As a result the target file would have a timestap ahead of the original it was taken from. 
 
 Internal:
