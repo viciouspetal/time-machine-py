@@ -102,3 +102,6 @@ ENV/
 
 # IntelliJ
 .idea/
+
+#Project-specific
+backups/

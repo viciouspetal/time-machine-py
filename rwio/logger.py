@@ -1,4 +1,4 @@
-from rwio.writer import Writer
+from rwio.appender import Appender
 
 
 class Logger:
@@ -7,6 +7,6 @@ class Logger:
 
     def log(self, item):
         print(item)
-        log = Writer("timemachine.log")
+        log = Appender("timemachine.log")
         log.write(item)
         log.close()

@@ -25,5 +25,5 @@ class Reader:
         lines = self.read()
 
         for line in lines:
-            print(line, sep="\n", end="\n")
+            print(line)
         self.close()
