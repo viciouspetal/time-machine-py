@@ -1,0 +1,45 @@
+SCRIPT RESILIENCE
+-------------------------------------------------------------
+
+Problem outline:
+	Script was required to be starting/stopping resiustant. This meant that any information needed to determine if any given  file needs to be backed up cannot be stored in memory but instead needs to be persisted to disk. However, didn't want to duplicate the whole directory structure as it can be very deep and on some operatin systems, e.g. Windows 7 your complete patth can only have 255 characters. Still, needed a way to cater for files with the same names but different directory paths. 
+
+Decision 1:
+	The backup folders' names are MD5 hashes of fully qualified path of files to be backed up. This way when taking next snapshot it's easy to determine the target location, folder name is relatively short and above all unique. This way if source file no longer exists it's possible to decode its path from the backup folder's name - in case of disater recovery, e.g. it may not be enough to have a file as in case of config file etc. they need to be in specific locations which may have otherwise been lost.
+Decision 2:
+	In order to determine if files were changed and need to be backed up one needs a last modified time between script runs. Since it cannot be kept in memory it needs to be persisted. Decided to store thetimestamp in a file with the  same name as the folder it resides in as it guarantees that even if by some user error timestamp files get mixed up it's easy to see which timetamp file belongs to which backup folder.
+Decision 3:
+	Decided to store timestamp in unix format as it is easiest for comparison
+		
+BACKUP DESIGN
+-------------------------------------------------------------
+Problem outline:
+	Outline requires to store a copy of the file each time it's changed building up he history of changes over time. This means that each consecutive copy of a file to be backed up needed to either be labelled, possibly by adding suffix to filename, or stored in a folder separating it from previous copies. At the same time label or folder name needed to denote historicl order of the copies
+Decision 1:
+	Decided on not suffixing filenames with timestamp as this would modify file's "last time modified" metadata. Instead copies of file are kept in folders where folder name is the last modified timestamp of the backed up file in unix format. Perhaps not very human readable but very machine readable in case of needing to write a recovery script.
+
+PARSING COMMANDLINE ARGUMENTS AND PROVIDING DEFAULTS
+--------------------------------------------------------------
+Problem outline:
+	There were a number of parameters that the script needed to support. On top of that they needed to have default values if they were omitted when script was ran or started.
+Decision 1:
+	Following advice given in lectures "Before you start any new task it's worth searching for a library to do the job, often it can get you 90% of the problem solved" - Python Basics (Lecture 4). Researched the mentioned argparse and discovered that it was infinitely easier than trying to work with *args (or even **kwargs) to allow optional arguments in the first place and then handle them in loops. Instead of a loop with many conditions checking if a given item matches one of supported arguments and if it has a value and if it does not then provide default. To many lines of code, prone to error and quite brittle to change in my opinion. 
+	
+
+
+MODULES IMPORTED
+--------------------------------------------------------------
+External:
+- os - needed for file operations, determining existance of files and folders, generating paths in OS-agnostic way
+- argparse - needed for easy working with command line arguments. Enabled easy parsing of arguments, providing default values if args are omitted. 
+- hashlib - needed to generate hashes of filepaths as outlined in Script Resilience section
+- shutil.copy2 - needed for easy copying of files from one location to another. Decided on this as opposed to shutil.copyfile mainly because latter doesn't allow the destination to be a directory - the file contents are moved from a file to a file. As a result the target file would have a timestap ahead of the original it was taken from. 
+
+Internal:
+- rwio.logger - defined consistent method for loggin of events throughout the script
+- rwio.reader - defined operations that required read access to files. Included file existence checking and error handling
+- rwio.writer - defined operations requiring writing to files. As opposed to appender writer wipes previous contents of the file
+- rwio.appender - defines operation requiring appending to file, such as additions to config.dat or logging
+- timestamps.timeops - defines a number of utility functions for timestamp handling, saving, retrieval
+- utils.fileutils - defines a number of utility functions for file handliong, file existence checking
+- utils.pathutils - defines a utility for path string cleanup

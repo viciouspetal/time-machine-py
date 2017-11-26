@@ -11,7 +11,6 @@ class Remover:
         r.close()
 
         w = Writer(self.filename)
-        # TODO need to find out why os.linesep function was not working
         for line in lines:
             if not line.endswith(item + "\n"):
                 w.write(line)

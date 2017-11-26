@@ -21,10 +21,10 @@ class Argutils:
     def add_file(self, args):
         log1 = Logger()
         if not os.path.exists(args.add):
-            log1.log("Attempting to add " + args.add + " to " + args.config + " failed.")
-            log1.log("File could not be located. Ensure the file exists before proceeding.")
+            log1.log("Attempting to add " + args.add + " to " + args.config + " failed")
+            log1.log("File could not be located. Ensure the file exists before proceeding")
         elif self.is_duplicate_addition(args.config, args.add):
-            log1.log("Could not add duplicate: " + args.add + " to list of watched files.")
+            log1.log(args.add + " is already watched nad was not added again")
         else:
             w1 = Appender(args.config)
             log1.log("Adding " + args.add + " to list of watched files: " + args.config)
@@ -39,8 +39,7 @@ class Argutils:
             r1.print_content()
             r1.close()
         else:
-            Logger().log("Couldn't locate: " + config_path)
-            Logger().log("Ensure the file exists before proceeding.")
+            Logger().log("Could not locate: " + config_path + "Ensure the file exists before proceeding")
 
     def is_duplicate_addition(self, filename, item_to_be_added):
         r1 = Reader(filename)

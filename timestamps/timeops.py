@@ -17,7 +17,7 @@ class Timeops:
 
     def save_timestamp(self, args, source_filepath):
         file_utils = Fileutils()
-        # prepare paths, and aggregate values to be saved
+        # prepare paths and aggregate values to be saved
         source_file_hash = file_utils.get_folder_name_hash(source_filepath)
         timestamp_destination = file_utils.generate_backup_filepath(args, source_filepath)
         current_timestamp = self.get_timestamp_for_file(source_filepath)
@@ -33,9 +33,8 @@ class Timeops:
         w1.close()
 
     def get_previous_timestamp(self, args, filepath_hash):
-
         timestamp_file_path = os.path.join(args.destinationPath, filepath_hash, filepath_hash)
-
+        # not using Fileutils as it adds a log statement
         if not os.path.exists(timestamp_file_path):
             return 0.0
         else:
