@@ -21,3 +21,15 @@ class Fileutils:
     def copy_file(self, filename, destination):
         clean_filename = Pathutils().clean_path(filename)
         copy2(clean_filename, destination)
+
+    def check_exists(self, filename):
+        if not os.path.exists(filename):
+            Logger().log("File: \"" + filename + "\" could not be found. Ensure the file exists before proceeding")
+            return False
+        else:
+            return True
+
+    def generate_backup_filepath(self, args, filepath):
+        filepath_hash = self.get_folder_name_hash(filepath)
+        destination_root = os.path.join(args.destinationPath, "backups")
+        return os.path.join(destination_root, filepath_hash)

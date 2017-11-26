@@ -1,4 +1,4 @@
-from rwio.appender import Appender
+from rwio.writer import Writer
 
 
 class Remover:
@@ -10,7 +10,7 @@ class Remover:
         lines = r.readlines()
         r.close()
 
-        w = Appender(self.filename)
+        w = Writer(self.filename)
         # TODO need to find out why os.linesep function was not working
         for line in lines:
             if not line.endswith(item + "\n"):

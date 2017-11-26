@@ -4,15 +4,21 @@ from rwio.logger import Logger
 from rwio.reader import Reader
 from rwio.writer import Writer
 from utils.pathutils import Pathutils
+from utils.fileutils import Fileutils
 
 
 class Timeops:
     def get_timestamp_for_file(self, filename):
         clean_filename = Pathutils().clean_path(filename)
-        return os.path.getmtime(clean_filename)
+        if Fileutils().check_exists(clean_filename):
+            return os.path.getmtime(clean_filename)
+        else:
+            return 0.0
+
 
     def save_timestamp(self, path, filename, timestamp):
-        filepath = os.path.join(path, filename)
+        clean_filename = Pathutils().clean_path(filename)
+        filepath = os.path.join(path, clean_filename)
         w1 = Writer(filepath)
         Logger().log("Saving last modified date of: " + str(timestamp) + " in " + filepath)
         w1.write(str(timestamp))

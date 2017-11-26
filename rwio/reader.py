@@ -16,6 +16,7 @@ class Reader:
         if self.f is not None:
             try:
                 lines = self.f.readlines()
+                lines = self.remove_empty_lines_from_list(lines)
             except IOError as err:
                 print("Could read from " + self.filename + ".")
                 print("Ensure that it exists and is not opened by other programs.")
@@ -27,3 +28,11 @@ class Reader:
         for line in lines:
             print(line)
         self.close()
+
+    def remove_empty_lines_from_list(self, source_list):
+        target_list = []
+        for item in source_list:
+            item = item.replace("\n", "")
+            if item is not None and len(item) > 0:
+                target_list.append(item)
+        return target_list

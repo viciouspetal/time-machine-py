@@ -3,6 +3,7 @@ import os
 
 from rwio.logger import Logger
 from rwio.reader import Reader
+from rwio.writer import Writer
 from timestamps.timeops import Timeops
 from utils.argutils import Argutils
 from utils.fileutils import Fileutils
@@ -24,7 +25,7 @@ def backup_files(args):
         # TODO this needs to get kicked to fileutils!
         filepath_hash = file_utils.get_folder_name_hash(filepath)
         destination_root = os.path.join(args.destinationPath, "backups")
-        destination = os.path.join(destination_root, filepath_hash)
+        destination = file_utils.generate_backup_filepath(args, filepath)
 
         # determine if backup is necessary
         if is_backup_needed(filepath, destination_root, filepath_hash):
@@ -48,11 +49,15 @@ def is_backup_needed(filepath, destination_root, filepath_hash):
 
     return current_timestamp > prev_timestamp
 
+def create_default_config(default_config_path):
+    w1 = Writer(default_config_path)
+    w1.write("")
+    w1.close()
 
 def main():
     parser = argparse.ArgumentParser()
-
-    parser.add_argument("--config", default='config.dat')
+    default_config = 'config.dat'
+    parser.add_argument("--config", default=default_config)
     parser.add_argument("--destinationPath", default='.')
     parser.add_argument("--list", action="store_true")
     parser.add_argument("--remove")
@@ -61,8 +66,11 @@ def main():
     args = parser.parse_args()
     arg_utils = Argutils()
 
+    if not os.path.exists(default_config):
+        create_default_config(default_config)
+
     if args.list:
-        arg_utils.list_config_contents(args.config)
+        arg_utils.print_config_contents(args.config)
     elif args.remove:
         arg_utils.remove_file(args)
     elif args.add:
