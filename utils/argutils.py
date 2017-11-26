@@ -4,6 +4,7 @@ from rwio.appender import Appender
 from rwio.logger import Logger
 from rwio.reader import Reader
 from rwio.remover import Remover
+from utils.fileutils import Fileutils
 
 
 class Argutils:
@@ -18,17 +19,18 @@ class Argutils:
             remover1.remove(args.remove)
 
     def add_file(self, args):
-        # TODO need to take a copy of file when it's added
         log1 = Logger()
         if not os.path.exists(args.add):
             log1.log("Attempting to add " + args.add + " to " + args.config + " failed.")
             log1.log("File could not be located. Ensure the file exists before proceeding.")
-        elif self.is_duplicate_add(args.config, args.add):
+        elif self.is_duplicate_addition(args.config, args.add):
             log1.log("Could not add duplicate: " + args.add + " to list of watched files.")
         else:
             w1 = Appender(args.config)
             log1.log("Adding " + args.add + " to list of watched files: " + args.config)
             w1.write(args.add)
+            log1.log("Taking initial backup of: " + args.add)
+            Fileutils().copy_file(args.add, args, 0)
 
     def print_config_contents(self, config_path):
         if os.path.exists(config_path):
@@ -40,7 +42,7 @@ class Argutils:
             Logger().log("Couldn't locate: " + config_path)
             Logger().log("Ensure the file exists before proceeding.")
 
-    def is_duplicate_add(self, filename, item_to_be_added):
+    def is_duplicate_addition(self, filename, item_to_be_added):
         r1 = Reader(filename)
         lines = r1.read()
 
